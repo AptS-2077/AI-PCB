@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f3">
+  <meta name="description" content="AI-PCB 本地概念设计工作台。从一句想法，到看得见的电路方案。">
+  <title>AI-PCB · 设计工作台</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳转到工作台</a>
+  <aside class="sidebar" aria-label="主导航">
+    <a class="brand" href="/" aria-label="AI-PCB 首页"><span class="brand-symbol" data-icon="chip"></span><span>AI<span class="brand-dot">·</span>PCB</span><small>BETA</small></a>
+    <button class="workspace-switch" data-action="about"><span class="workspace-avatar">W</span><span>我的工作空间<small>个人空间 · 本地演示</small></span><span data-icon="chevrons"></span></button>
+    <div class="nav-caption">工作空间</div>
+    <nav class="primary-nav">
+      <button class="nav-item active" data-action="workbench"><span data-icon="layout"></span>设计工作台<span class="nav-dot"></span></button>
+      <button class="nav-item" data-action="projects"><span data-icon="folder"></span>我的项目<span id="project-count" class="nav-count">—</span></button>
+      <button class="nav-item" data-action="components"><span data-icon="chip"></span>元件库<span class="nav-tag">内置</span></button>
+      <button class="nav-item" data-action="templates"><span data-icon="grid"></span>模板中心</button>
+      <button class="nav-item" data-action="settings"><span data-icon="sliders"></span>API 与工程设置</button>
+      <button class="nav-item" data-action="sourcing"><span data-icon="search"></span>实时器件查询</button>
+    </nav>
+    <div class="nav-caption project-caption">最近项目<button class="icon-button" data-action="new" aria-label="新建项目"><span data-icon="plus"></span></button></div>
+    <div id="recent-projects" class="recent-projects"><div class="skeleton line"></div><div class="skeleton line short"></div></div>
+    <div class="sidebar-bottom">
+      <div class="idea-card"><span class="idea-spark" data-icon="sparkles"></span><strong>每一个想法，都值得被连接。</strong><p>从灵感到电路，<br>让创作多一种可能。</p><button data-action="templates">从模板开始 <span data-icon="arrow-right"></span></button><div class="idea-orbit orbit-one"></div><div class="idea-orbit orbit-two"></div></div>
+      <button class="nav-item" data-action="about"><span data-icon="help"></span>关于这个 Demo<span data-icon="arrow-up-right"></span></button>
+      <div class="profile"><span class="profile-avatar">访</span><span><strong>本地访客</strong><small>无需登录 · 数据保存在本机</small></span><span class="online-dot"></span></div>
+    </div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumb"><span data-icon="home"></span><span>工作空间</span><span class="slash">/</span><strong>设计工作台</strong></div><div class="topbar-actions"><span class="service-indicator" id="service-indicator"><i></i> 正在连接</span><span class="topbar-divider"></span><button class="icon-button" data-action="about" aria-label="帮助与演示说明"><span data-icon="help"></span></button><span class="top-avatar">访</span></div></header>
+    <main id="main">
+      <section class="page-heading"><div><h1>AI-PCB 设计工作台</h1><p id="workspace-mode">API 未配置</p></div><div class="heading-actions"><button class="button secondary" data-action="settings"><span data-icon="sliders"></span>设置</button><button class="button primary" data-action="new"><span data-icon="plus"></span>新建项目</button></div></section>
+
+      <section class="design-space" aria-label="PCB 概念设计工作台">
+        <header class="project-bar"><div class="project-identity"><span class="project-symbol" data-icon="board"></span><div><div class="project-title-line"><h2 id="project-name">正在加载工作空间</h2><span class="version-badge" id="project-version">v—</span></div><div class="project-meta"><span class="save-dot"></span><span id="save-state">连接本地 Rust 服务</span><span class="meta-separator">·</span><span id="project-short-id">AI-PCB PROJECT</span></div></div></div><div class="project-actions"><span class="status-badge" id="review-status">概念演示</span><button class="button secondary small" id="export-button" data-action="export" disabled><span data-icon="download"></span><span>导出</span></button></div></header>
+
+        <div class="workspace-grid">
+          <section class="conversation-panel" aria-label="需求与版本">
+            <div class="panel-tabs"><button class="panel-tab active" data-chat-tab="conversation">需求对话</button><button class="panel-tab" data-chat-tab="history">版本记录 <span id="history-count">0</span></button><span class="subtle-icon" data-icon="panel"></span></div>
+            <div class="engine-label"><span class="engine-mark" data-icon="sparkles"></span><strong>设计助手</strong><span>模板演示引擎</span></div>
+            <div id="conversation" class="conversation-scroll" role="log" aria-label="设计对话"><div class="loading-state"><span class="spinner"></span><p>正在读取你的设计…</p></div></div>
+            <div id="history-panel" class="conversation-scroll hidden"></div>
+            <div class="composer-area"><div class="suggestion-row"><button data-suggestion="environment">环境监测</button><button data-suggestion="irrigation">智能浇灌</button><button data-action="templates" aria-label="更多模板"><span data-icon="more"></span></button></div><form id="prompt-form" class="composer"><label class="sr-only" for="prompt-input">描述修改需求</label><textarea id="prompt-input" placeholder="描述你的新想法，或补充设计需求…" maxlength="1000" rows="3" required></textarea><div class="composer-footer"><span><span data-icon="paperclip"></span>纯文本需求</span><button class="send-button" type="submit" id="send-button" aria-label="生成修改后的方案" disabled><span data-icon="arrow-up"></span></button></div></form><p class="composer-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> 发送 <span>内容仅保存在本机</span></p></div>
+          </section>
+
+          <section class="design-panel" aria-label="设计成果">
+            <div id="board-provenance" class="board-provenance" role="status"><strong>尚未生成 PCB</strong><p>生成后会明确显示模板示意或工程文件来源。</p></div>
+            <div class="design-tabs" role="tablist" aria-label="设计视图"><button class="design-tab active" id="tab-board" role="tab" aria-selected="true" aria-controls="view-board" data-view="board"><span data-icon="board"></span>PCB 预览</button><button class="design-tab" id="tab-modules" role="tab" aria-selected="false" aria-controls="view-modules" data-view="modules"><span data-icon="workflow"></span>模块图</button><button class="design-tab" id="tab-bom" role="tab" aria-selected="false" aria-controls="view-bom" data-view="bom"><span data-icon="list"></span>BOM</button><button class="design-tab" id="tab-checks" role="tab" aria-selected="false" aria-controls="view-checks" data-view="checks"><span data-icon="shield"></span>设计检查<span id="check-count" class="tab-counter">—</span></button></div>
+            <div id="view-board" class="design-view board-view" role="tabpanel" aria-labelledby="tab-board"><div class="canvas-toolbar"><div class="canvas-tool-group"><button class="icon-button active" id="select-tool" title="选择元件" aria-label="选择元件"><span data-icon="cursor"></span></button><button class="icon-button" id="pan-tool" title="平移画布" aria-label="平移画布"><span data-icon="hand"></span></button><span class="tool-divider"></span><span class="view-mode-label">2D 布局</span></div><button class="canvas-pill" id="toggle-nets" aria-pressed="true"><span class="tiny-dot"></span>网络连线<span data-icon="eye"></span></button></div><div id="board-canvas" class="board-canvas" aria-label="PCB 概念布局画布"><div class="canvas-loading">正在载入概念布局</div></div><div class="canvas-corner-label"><span data-icon="info"></span>概念布局 · 非生产文件</div><div class="zoom-controls"><button class="icon-button" id="zoom-out" aria-label="缩小画布"><span data-icon="minus"></span></button><output id="zoom-value">100%</output><button class="icon-button" id="zoom-in" aria-label="放大画布"><span data-icon="plus"></span></button><span class="tool-divider"></span><button class="icon-button" id="fit-board" aria-label="适应画布" title="适应画布"><span data-icon="maximize"></span></button></div><div class="canvas-footer"><span><i class="layer-dot front"></i>F.Cu 顶层<span class="legend-gap"></span><i class="layer-dot back"></i>B.Cu 底层</span><span id="board-dimensions">— × — mm</span></div></div>
+            <div id="view-modules" class="design-view content-view hidden" role="tabpanel" aria-labelledby="tab-modules"></div>
+            <div id="view-bom" class="design-view content-view hidden" role="tabpanel" aria-labelledby="tab-bom"></div>
+            <div id="view-checks" class="design-view content-view hidden" role="tabpanel" aria-labelledby="tab-checks"></div>
+            <div class="design-metrics"><div><span data-icon="chip"></span><div><small>示意元件</small><strong id="metric-components">—<em>个</em></strong></div></div><div><span data-icon="workflow"></span><div><small>模块级网络</small><strong id="metric-nets">—<em>组</em></strong></div></div><div><span data-icon="coins"></span><div><small>BOM 演示估值</small><strong id="metric-cost">—</strong></div></div></div>
+          </section>
+
+          <aside class="inspector-panel" aria-label="设计属性"><div class="inspector-title"><strong>设计属性</strong><span data-icon="sliders"></span></div><div class="inspector-scroll"><section class="inspector-section"><div class="section-label"><span>板卡配置</span><span class="tiny-badge">可编辑</span></div><form id="constraints-form"><div class="field-group"><label>板框尺寸 <span>mm</span></label><div class="dimensions-fields"><input type="number" id="width-input" min="30" max="160" value="80" required aria-label="板宽（毫米）"><span>×</span><input type="number" id="height-input" min="30" max="120" value="50" required aria-label="板高（毫米）"></div></div><div class="field-group"><label for="layers-input">铜层意向</label><select id="layers-input"><option value="2">2 层 · 双面板</option><option value="4">4 层 · 内层待设计</option></select></div><div class="property-row"><span>基材假设</span><strong>FR-4</strong></div><div class="property-row"><span>板厚假设</span><strong>1.6 mm</strong></div><div class="field-group budget-field"><label for="budget-input">BOM 目标预算 <span>CNY</span></label><div class="currency-input"><span>¥</span><input type="number" id="budget-input" min="1" max="5000" value="80" required></div></div><button class="button secondary full-width" type="submit" id="apply-constraints" disabled><span data-icon="refresh"></span>应用并重新生成</button></form></section><section class="inspector-section"><div class="section-label"><span>图层显示</span><span data-icon="layers"></span></div><label class="layer-row"><span><i class="layer-dot front"></i>F.Cu <small>顶层铜</small></span><input id="layer-front" type="checkbox" checked class="switch" aria-label="显示顶层连线"></label><label class="layer-row"><span><i class="layer-dot back"></i>B.Cu <small>底层铜</small></span><input id="layer-back" type="checkbox" checked class="switch" aria-label="显示底层连线"></label><label class="layer-row"><span><i class="layer-dot silk"></i>F.SilkS <small>丝印</small></span><input id="layer-silk" type="checkbox" checked class="switch" aria-label="显示丝印"></label></section><section class="inspector-section component-section"><div class="section-label"><span>元件属性</span><span data-icon="crosshair"></span></div><div id="component-detail"><div class="selection-empty"><span data-icon="cursor"></span><p>点击板上的元件<br><small>查看型号、封装与参考价格</small></p></div></div></section></div><div class="inspector-bottom"><div class="review-summary"><span data-icon="shield"></span><div><strong id="review-summary-title">方案待你确认</strong><small>概念确认不代表工程验证</small></div></div><button class="button primary full-width" id="review-button" data-action="review" disabled><span data-icon="check"></span>审核概念方案</button></div></aside>
+        </div>
+        <footer class="workspace-status"><span><i class="status-light"></i><span id="bottom-state">正在连接本地服务</span></span><span><span id="generation-mode">RULE-BASED DEMO</span><span class="status-footer-divider">/</span>未执行电气仿真 · 不可直接投产<span class="status-footer-divider">/</span><span class="rust-label">Rust powered</span></span></footer>
+      </section>
+      <div class="page-footnote"><span data-icon="sparkles"></span>把复杂留给工具，把创造留给你。<span>AI-PCB · CONCEPT STUDIO</span></div>
+    </main>
+  </div>
+
+  <dialog id="new-dialog" class="modal"><form id="new-project-form"><div class="modal-header"><div><span class="eyebrow">A NEW CONNECTION</span><h2>你的下一个想法是什么？</h2></div><button class="icon-button" type="button" data-close aria-label="关闭新建设计"><span data-icon="close"></span></button></div><p class="modal-description">用几句话描述功能，先让概念有一个看得见的起点。</p><div id="new-template-options" class="template-options"></div><label class="form-label" for="new-name">项目名称</label><input class="form-input" id="new-name" maxlength="60" placeholder="例如：我的环境感知终端" required><label class="form-label" for="new-prompt">设计需求</label><textarea class="form-input" id="new-prompt" rows="5" minlength="8" maxlength="4000" placeholder="我想设计一块能……的电路板" required></textarea><div class="notice-box"><span data-icon="info"></span><p id="generation-description">正在读取服务端生成模式。所有设计只用于概念展示，不可直接制造。</p></div><p class="form-error" id="new-error" role="alert"></p><div class="modal-footer"><button class="button secondary" type="button" data-close>取消</button><button class="button primary" type="submit" id="create-button"><span data-icon="sparkles"></span>生成概念方案</button></div></form></dialog>
+
+  <dialog id="remote-dialog" class="modal" aria-labelledby="remote-title" aria-describedby="remote-summary">
+    <form method="dialog">
+      <div class="modal-header"><div><span class="eyebrow">BEFORE YOU SEND</span><h2 id="remote-title">确认本次模型请求</h2></div><button class="icon-button" value="cancel" aria-label="取消模型请求"><span data-icon="close"></span></button></div>
+      <p class="modal-description">本次需求将离开本机，发送到服务端配置的 API：</p>
+      <div class="remote-destination" id="remote-destination"></div>
+      <p class="about-text" id="remote-summary"></p>
+      <div class="notice-box warning"><span data-icon="lock"></span><p>OpenAI 兼容 API 仅表示协议兼容，不代表目标网址由 OpenAI 官方运营。请核对上方目标网址；对应服务商及其上游会处理本次需求，请确认你接受其数据政策，请求可能消耗账户额度。应用发送 store=false，但这不代表服务商或上游不会保留日志。</p></div>
+      <p class="library-note">只发送需求与板卡约束，不上传项目文件；密钥由 Rust 服务端附加，不会返回浏览器。取消不会发送请求。</p>
+      <div class="modal-footer"><button class="button secondary" value="cancel" autofocus>取消</button><button class="button primary" value="allow">同意发送并生成</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="library-dialog" class="modal wide-modal"><div class="modal-header"><div><span class="eyebrow" id="library-eyebrow">YOUR WORKSPACE</span><h2 id="library-title">我的项目</h2></div><button class="icon-button" data-close aria-label="关闭列表"><span data-icon="close"></span></button></div><div class="search-field"><span data-icon="search"></span><input id="library-search" type="search" placeholder="搜索项目" aria-label="搜索列表"></div><div id="library-content" class="library-content"></div><p id="library-note" class="library-note"></p></dialog>
+
+  <dialog id="review-dialog" class="modal"><div class="modal-header"><div><span class="eyebrow">HUMAN IN THE LOOP</span><h2>确认概念，保留工程边界。</h2></div><button class="icon-button" data-close aria-label="关闭审核"><span data-icon="close"></span></button></div><div id="review-checks" class="review-checks"></div><div class="notice-box warning"><span data-icon="shield"></span><p>真实 ERC、DRC、电路仿真与制造检查均未执行。确认仅记录你已审阅本版本的概念方案。</p></div><label class="acknowledge"><input type="checkbox" id="review-ack"><span>我了解这是模板演示，尚未通过工程验证，不能用于直接制造。</span></label><p id="review-error" class="form-error" role="alert"></p><div class="modal-footer"><button class="button secondary" data-close>继续修改</button><button class="button primary" id="confirm-review" disabled><span data-icon="check"></span>确认本版概念</button></div></dialog>
+
+  <dialog id="export-dialog" class="modal"><div class="modal-header"><div><span class="eyebrow">TAKE YOUR IDEA WITH YOU</span><h2>导出概念设计资料</h2></div><button class="icon-button" data-close aria-label="关闭导出"><span data-icon="close"></span></button></div><p class="modal-description">资料包含演示标识，可用于交流与方案讨论。</p><div class="export-options"><button class="export-option" data-export="bom"><span class="export-icon" data-icon="list"></span><span><strong>BOM 元件清单</strong><small>CSV · 位号、型号、数量及演示估值</small></span><span data-icon="download"></span></button><button class="export-option" data-export="project"><span class="export-icon" data-icon="code"></span><span><strong>完整概念项目</strong><small>JSON · 需求、设计数据、版本及审核状态</small></span><span data-icon="download"></span></button><button class="export-option" data-export="report"><span class="export-icon" data-icon="file"></span><span><strong>概念方案报告</strong><small>Markdown · 方案摘要、限制与检查记录</small></span><span data-icon="download"></span></button></div><div class="notice-box warning"><span data-icon="info"></span><p>Demo 不生成 Gerber、真实 KiCad 工程或其他生产文件。导出不代表工程验证通过。</p></div><p class="form-error" id="export-error" role="alert"></p></dialog>
+
+  <dialog id="about-dialog" class="modal"><div class="modal-header"><div><span class="eyebrow">BUILT FOR IDEAS</span><h2>AI-PCB <span class="about-version">Concept Studio</span></h2></div><button class="icon-button" data-close aria-label="关闭说明"><span data-icon="close"></span></button></div><p class="modal-description">以自然语言为入口的 PCB 概念设计工作台。<br>基于项目想法书，先打通「需求 → 方案 → 预览 → 审核 → 导出」。</p><div class="about-stack"><span>Rust / Axum</span><span>Responses API</span><span>原生 Web / SVG</span><span>本地项目存储</span></div><h3>这个版本可以做什么</h3><p class="about-text">支持 OpenAI 兼容 API（Responses API）和不联网的模板模式。远程模型负责分析需求、选择参考模板、指出未实现需求和建议；Rust 负责模板布局、BOM、示意检查与保存。每个项目单独记录实际分析来源。</p><h3>尚未实现的工程能力</h3><p class="about-text">未连接器件实时数据库、真实原理图工具、自动布线、电气仿真或生产流程。模型建议不代表功能已经实现，界面连线是模块级示意，不是管脚级网表。</p><div class="notice-box"><span data-icon="lock"></span><p>本地服务没有账号或权限系统，不要开放公网。项目明文保存于本机；启用远程模型后，获授权的需求会发送至配置的 API 服务。不要输入敏感资料，API 服务商及其上游的数据政策不由本应用控制。</p></div><div class="modal-footer"><button class="button primary" data-close>了解，开始探索</button></div></dialog>
+
+  <dialog id="settings-dialog" class="modal settings-modal" aria-labelledby="settings-title">
+    <div class="modal-header"><h2 id="settings-title">工作空间设置</h2><button class="icon-button" data-close title="关闭设置" aria-label="关闭设置"><span data-icon="close"></span></button></div>
+    <div class="settings-tabs" role="tablist" aria-label="设置分类"><button type="button" role="tab" aria-selected="true" data-settings-tab="api">模型 API</button><button type="button" role="tab" aria-selected="false" data-settings-tab="tools">工程工具</button><button type="button" role="tab" aria-selected="false" data-settings-tab="supplier">器件数据库</button></div>
+    <form id="api-settings-form" class="settings-section" autocomplete="off">
+      <div class="settings-status" id="api-status" role="status"></div>
+      <div class="settings-grid">
+        <label>API 协议<select id="api-provider"><option value="openai">OpenAI 兼容 API</option></select></label>
+        <label>模型名称<input id="api-model" required maxlength="120" spellcheck="false"></label>
+        <label class="span-two">API Base URL<input id="api-base-url" type="url" required spellcheck="false"></label>
+        <label class="span-two">API Key<input id="api-key" type="password" maxlength="4096" autocomplete="new-password" spellcheck="false" placeholder="输入此 API 地址对应的密钥"></label>
+        <label>超时（秒）<input id="api-timeout" type="number" min="10" max="300" required></label>
+        <label>输出上限（0 = 不发送）<input id="api-tokens" type="number" min="0" max="16000" required></label>
+        <label>推理强度<select id="api-reasoning"><option value="">不发送</option><option>none</option><option>minimal</option><option>low</option><option>medium</option><option>high</option><option>xhigh</option></select></label>
+        <label>输出格式<select id="api-format"><option value="json_schema">JSON Schema</option><option value="json_object">JSON Object</option><option value="text">Text JSON</option></select></label>
+      </div>
+      <label class="setting-check"><input id="api-stream" type="checkbox">Responses API 流式传输</label>
+      <p class="settings-note">请显式填写所用服务的 HTTPS API 地址，以 /v1 结尾。OpenAI 兼容 API 是协议标识，不代表自定义网址是 OpenAI 官方服务。</p>
+      <p class="settings-note">密钥仅驻留本地服务内存，重启后需重新输入；不会保存至浏览器或项目。地址不变时空密钥保留当前值，变更 API 地址必须重新输入密钥。</p>
+      <p class="settings-note">模型名称须与所用 API 服务的可用模型名称完全一致；保存配置不会校验模型调用权限。当前仅支持 Responses API（/v1/responses），不保证兼容仅支持 Chat Completions 的服务。</p>
+      <p class="settings-note">排查兼容问题时，可在网页将输出格式选为 Text JSON（text），无需设置环境变量；推理强度可选“不发送”。这些选项仅在你明确修改并保存后生效，不会自动调整。</p>
+      <p class="form-error" id="settings-error" role="alert"></p>
+      <div class="modal-footer"><button type="button" class="button secondary" id="clear-api">清除密钥</button><button type="submit" class="button primary" id="save-api"><span data-icon="check"></span>保存配置</button></div>
+      <div class="api-test-row"><label class="setting-check"><input id="test-consent" type="checkbox">允许向已保存的 API 发送固定测试需求（可能计费）</label><button type="button" class="button secondary" id="test-api" disabled><span data-icon="refresh"></span>测试连接</button></div>
+    </form>
+    <form id="supplier-settings-form" class="settings-section hidden" autocomplete="off">
+      <div id="supplier-status" class="settings-status"></div><label class="form-label" for="supplier-key">Mouser Search API Key</label><input id="supplier-key" class="form-input" type="password" maxlength="256" autocomplete="new-password">
+      <p class="settings-note">独立于模型 API，仅向 api.mouser.com 查询。密钥不持久化，空值保存会清除密钥。库存和价格为查询时数据，不自动代表器件适用性。</p>
+      <p id="supplier-error" class="form-error" role="alert"></p><div class="modal-footer"><button type="submit" class="button primary"><span data-icon="check"></span>保存数据库设置</button></div>
+    </form>
+    <form id="tools-settings-form" class="settings-section hidden">
+      <div id="tool-status" class="settings-status"></div>
+      <div class="settings-grid">
+        <label class="span-two">KiCad CLI<input id="tool-kicad-cli" placeholder="C:\Program Files\KiCad\9.0\bin\kicad-cli.exe" spellcheck="false"></label>
+        <label class="span-two">KiCad Python（需含 pcbnew）<input id="tool-kicad-python" placeholder="C:\Program Files\KiCad\9.0\bin\python.exe" spellcheck="false"></label>
+        <label class="span-two">ngspice<input id="tool-ngspice" placeholder="C:\Spice64\bin\ngspice_con.exe" spellcheck="false"></label>
+        <label class="span-two">Java<input id="tool-java" spellcheck="false"></label>
+        <label class="span-two">Freerouting JAR<input id="tool-freerouting-jar" placeholder="C:\tools\freerouting.jar" spellcheck="false"></label>
+      </div>
+      <p class="settings-note">仅执行明确配置的本机程序，路径不接受命令行参数。工具链只处理已生成的受约束工程，单个步骤最多运行 120 秒。</p>
+      <p class="form-error" id="tools-error" role="alert"></p>
+      <div class="modal-footer"><button type="submit" class="button primary"><span data-icon="check"></span>保存工具路径</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="delete-dialog" class="modal" aria-labelledby="delete-title"><form id="delete-project-form"><div class="modal-header"><h2 id="delete-title">删除项目</h2><button type="button" class="icon-button" data-close aria-label="取消删除"><span data-icon="close"></span></button></div><p id="delete-description"></p><label class="setting-check"><input id="delete-ack" type="checkbox" required>永久删除项目、版本记录与工程文件，无法撤销</label><p id="delete-error" class="form-error" role="alert"></p><div class="modal-footer"><button type="button" class="button secondary" data-close>取消</button><button type="submit" class="button danger">确认删除</button></div></form></dialog>
+  <dialog id="sourcing-dialog" class="modal wide-modal" aria-labelledby="sourcing-title"><div class="modal-header"><h2 id="sourcing-title">实时器件查询</h2><button class="icon-button" data-close aria-label="关闭器件查询"><span data-icon="close"></span></button></div><form id="sourcing-form"><label class="form-label" for="part-query">型号或关键词</label><div class="part-search"><input class="form-input" id="part-query" minlength="2" maxlength="100" required placeholder="制造商料号 / 电阻 / 电容"><button type="submit" class="button primary"><span data-icon="search"></span>查询</button></div><label class="setting-check"><input id="part-consent" type="checkbox" required>允许将关键词发送至 Mouser</label></form><p id="sourcing-error" class="form-error" role="alert"></p><div id="sourcing-results" class="sourcing-results"></div></dialog>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <noscript><div class="noscript-notice">请启用 JavaScript 以使用设计工作台。</div></noscript>
+</body>
+</html>
